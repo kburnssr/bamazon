@@ -15,11 +15,11 @@ connection.query('SELECT * FROM products', function (error, results, fields) {
     if (error) throw error;
     //  console.log(results);
     for (var i = 0; i < results.length; i++) {
-        console.log(
+        console.log([
             results[i].item_id,
             results[i].product_name,
             "$" + results[i].price
-        );
+        ].join(" "));
     }
     const readline = require('readline').createInterface({
         input: process.stdin,
@@ -30,8 +30,12 @@ connection.query('SELECT * FROM products', function (error, results, fields) {
             readline.close();
             connection.query('SELECT * FROM products where item_id = '+item_id, function (error, results, fields) {
                 if (error) throw error;
-                if(results[0].stock_quantity < quantity){
+                if(quantity > results[0].stock_quantity){
                     console.log('Insufficient quantity');
+                    connection.end();
+                    return;
+                } else if(results[0].stock_quantity <= 0){
+                    console.log('0 quantity');
                     connection.end();
                     return;
                 }
